@@ -13,7 +13,7 @@ import images from '../assets';
 const CreateNFT = () => {
   const [fileUrl, setFileUrl] = useState(null);
   const [formInput, setFormInput] = useState({ price: '', name: '', description: '', aiPrompt: '' });
-  const [activeSection, setActiveSection] = useState('upload'); // 'upload' or 'ai'
+  const [activeSection, setActiveSection] = useState('upload'); // 'upload', 'ai', or 'audio'
   const [isGenerating, setIsGenerating] = useState(false);
   const { theme } = useTheme();
   const { isLoadingNFT, uploadToIPFS, createNFT } = useContext(NFTContext);
@@ -24,11 +24,18 @@ const CreateNFT = () => {
     setFileUrl(url);
   }, [uploadToIPFS]);
 
-  const { getRootProps, getInputProps, isDragActive, isDragAccept, isDragReject } = useDropzone({
+  const imageDropzone = useDropzone({
     onDrop,
     accept: 'image/*',
-    maxSize: 5000000,
+    maxSize: 100000000, // 100mb
     disabled: activeSection !== 'upload',
+  });
+
+  const audioDropzone = useDropzone({
+    onDrop,
+    accept: 'audio/*',
+    maxSize: 100000000, // 100mb
+    disabled: activeSection !== 'audio',
   });
 
   const generateAIImage = async () => {
@@ -66,16 +73,15 @@ const CreateNFT = () => {
   };
 
   const fileStyle = useMemo(
-    () => `
+    () => (isDragActive, isDragAccept, isDragReject) => `
       dark:bg-nft-black-1 bg-white border dark:border-white border-nft-gray-2 flex flex-col items-center p-5 rounded-lg border-dashed
       ${isDragActive && ' border-blue-500'}
       ${isDragAccept && ' border-green-500'}
       ${isDragReject && ' border-red-500'}
     `,
-    [isDragActive, isDragAccept, isDragReject]
+    []
   );
 
-  // Full-screen loading overlay
   const LoadingOverlay = () => (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
       <div className="relative">
@@ -88,9 +94,7 @@ const CreateNFT = () => {
     </div>
   );
 
-  if (isLoadingNFT || isGenerating) {
-    return <LoadingOverlay />;
-  }
+  if (isLoadingNFT || isGenerating) return <LoadingOverlay />;
 
   return (
     <div className="flex justify-center sm:px-4 p-12 relative min-h-screen">
@@ -101,13 +105,11 @@ const CreateNFT = () => {
 
         {/* Toggle Switch */}
         <div className="flex justify-center mb-12">
-          <div className="relative inline-flex items-center bg-gray-200 dark:bg-nft-black-1 rounded-full p-1 w-64">
+          <div className="relative inline-flex items-center bg-gray-200 dark:bg-nft-black-1 rounded-full p-1 w-80">
             <button
               onClick={() => setActiveSection('upload')}
               className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeSection === 'upload'
-                  ? ' text-white shadow-lg'
-                  : 'text-gray-700 dark:text-gray-300'
+                activeSection === 'upload' ? 'shadow-lg' : 'text-gray-700 dark:text-gray-300'
               }`}
             >
               Upload Image
@@ -115,29 +117,35 @@ const CreateNFT = () => {
             <button
               onClick={() => setActiveSection('ai')}
               className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeSection === 'ai'
-                  ? ' text-white shadow-lg'
-                  : 'text-gray-700 dark:text-gray-300'
+                activeSection === 'ai' ? 'shadow-lg' : 'text-gray-700 dark:text-gray-300'
               }`}
             >
               Generate AI Image
             </button>
+            <button
+              onClick={() => setActiveSection('audio')}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all duration-300 ${
+                activeSection === 'audio' ? 'shadow-lg' : 'text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Upload Audio
+            </button>
             <div
-              className={`absolute top-1 bottom-1 w-1/2 bg-blue-500/25 rounded-full transition-transform duration-300 ${
-                activeSection === 'upload' ? 'translate-x-0' : 'translate-x-full'
+              className={`absolute top-1 bottom-1 w-1/3 bg-blue-500/40 rounded-full transition-transform duration-300 ${
+                activeSection === 'upload' ? 'translate-x-0' : activeSection === 'ai' ? 'translate-x-full' : 'translate-x-[200%]'
               }`}
             />
           </div>
         </div>
 
-        {/* Upload Section */}
+        {/* Upload Image Section */}
         {activeSection === 'upload' && (
           <div className="mt-8 bg-white dark:bg-nft-black-1 p-6 rounded-lg shadow-md">
             <p className="font-poppins dark:text-white text-nft-black-1 font-semibold text-xl mb-4">
               Upload Your Image
             </p>
-            <div {...getRootProps()} className={fileStyle}>
-              <input {...getInputProps()} />
+            <div {...imageDropzone.getRootProps()} className={fileStyle(imageDropzone.isDragActive, imageDropzone.isDragAccept, imageDropzone.isDragReject)}>
+              <input {...imageDropzone.getInputProps()} />
               <div className="flexCenter flex-col text-center">
                 <p className="font-poppins dark:text-white text-nft-black-1 font-semibold text-lg">
                   JPG, PNG, GIF, SVG, WEBM (Max 100mb)
@@ -191,6 +199,41 @@ const CreateNFT = () => {
           </div>
         )}
 
+        {/* Audio Upload Section */}
+        {activeSection === 'audio' && (
+          <div className="mt-8 bg-white dark:bg-nft-black-1 p-6 rounded-lg shadow-md">
+            <p className="font-poppins dark:text-white text-nft-black-1 font-semibold text-xl mb-4">
+              Upload Your Audio
+            </p>
+            <div {...audioDropzone.getRootProps()} className={fileStyle(audioDropzone.isDragActive, audioDropzone.isDragAccept, audioDropzone.isDragReject)}>
+              <input {...audioDropzone.getInputProps()} />
+              <div className="flexCenter flex-col text-center">
+                <p className="font-poppins dark:text-white text-nft-black-1 font-semibold text-lg">
+                  MP3, WAV, OGG (Max 100mb)
+                </p>
+                <div className="my-8 w-full flex justify-center">
+                  <Image
+                    src={images.upload} // You could replace this with an audio icon if available
+                    width={80}
+                    height={80}
+                    objectFit="contain"
+                    alt="audio upload"
+                    className={theme === 'light' ? 'filter invert' : ''}
+                  />
+                </div>
+                <p className="font-poppins dark:text-white text-nft-black-1 text-sm">
+                  Drag and drop or click to browse
+                </p>
+              </div>
+            </div>
+            {fileUrl && (
+              <div className="mt-4">
+                <audio controls src={fileUrl} className="w-full rounded-lg" />
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Form Fields */}
         <div className="mt-12 space-y-6">
           <Input
@@ -218,7 +261,7 @@ const CreateNFT = () => {
           <Button
             btnName="Create NFT"
             classStyles="rounded-xl bg-green-600 hover:bg-green-700 px-6 py-3"
-            handleClick={() => createNFT(formInput, fileUrl, router)}
+            handleClick={() => createNFT(formInput, fileUrl, router, activeSection === 'audio' ? 'audio' : 'image')}
             disabled={!fileUrl}
           />
         </div>

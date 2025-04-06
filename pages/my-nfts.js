@@ -19,9 +19,13 @@ const MyNFTs = () => {
     useEffect(() => {
         fetchMyNFTsOrListedNFTs()
             .then((items) => {
-                setNfts(items);
-                setNftsCopy(items);
+                const validItems = items.filter((item) => item !== null); // Filter out null items
+                setNfts(validItems);
+                setNftsCopy(validItems);
                 setIsLoading(false);
+                // setNfts(items);
+                // setNftsCopy(items);
+                // setIsLoading(false);
             });
     }, []);
 
@@ -37,6 +41,12 @@ const MyNFTs = () => {
                 break;
             case 'Recently Added':
                 setNfts(sortedNfts.sort((a, b) => b.tokenId - a.tokenId));
+                break;
+            case 'Images Only':
+                setNfts(sortedNfts.filter((nft) => !nft.animation_url));
+                break;
+            case 'Audio Only':
+                setNfts(sortedNfts.filter((nft) => nft.animation_url));
                 break;
             default:
                 setNfts(nfts);
@@ -107,7 +117,7 @@ const MyNFTs = () => {
                     <div className="mt-3 w-full flex flex-wrap">
                         {nfts.map((nft) => (
                             <NFTCard
-                                key={nft.token}
+                                key={nft.tokenId}
                                 nft={nft}
                                 onProfilePage
                             />
