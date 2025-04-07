@@ -10,5 +10,6 @@ import Modal from './Modal';
 import SearchBar from './SearchBar';
 import withTransition from './withTransition';
 import ActionButtons from './ActionButtons';
+import AIChat from './chat';
 
-export { Navbar, Footer, Button, Banner, CreatorCard, NFTCard, Input, Loader, Modal, SearchBar, withTransition, ActionButtons };
+export {AIChat, Navbar, Footer, Button, Banner, CreatorCard, NFTCard, Input, Loader, Modal, SearchBar, withTransition, ActionButtons };
