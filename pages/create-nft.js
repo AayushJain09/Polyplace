@@ -54,7 +54,7 @@ const CreateNFT = () => {
         formData,
         {
           headers: {
-            Authorization: 'Bearer sk-MYAPIKEY', // Replace with your actual API key
+            Authorization: 'Bearer sk-9UMdY72NGS9UU6d5r8XNgW1L1oTLgMkHNoVGqINp91JdsHLX', // Replace with your actual API key
             Accept: 'image/*',
             'Content-Type': 'multipart/form-data',
           },

@@ -11,7 +11,7 @@ const AIChat = ({ isOpen, onClose }) => {
     }
 
     const iframe = document.createElement('iframe');
-    // iframe.src = 'https://cdn.botpress.cloud/webchat/v2.3/shareable.html?configUrl=https://files.bpcontent.cloud/2025/04/07/18/20250407180933-GQR23J3A.json';
+    iframe.src = 'https://cdn.botpress.cloud/webchat/v2.3/shareable.html?configUrl=https://files.bpcontent.cloud/2025/04/07/18/20250407180933-GQR23J3A.json';
     iframe.frameBorder = '0';
     iframe.width = '100%';
     iframe.height = '100%'; // Full height of container
